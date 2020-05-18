@@ -1,5 +1,7 @@
 module OctaveCall
 
+export jl2oct, oct2jl
+
 # this needs to be set globally for Cxx to work with liboctave,
 # unfortunately (and possibly requirex Cxx to be re-built):
 ENV["JULIA_CXX_RTTI"]=1
@@ -17,7 +19,6 @@ function __init__()
     cxxinclude(basename(oct_h))
 end
 
-include("oct2jl.jl")
-include("jl2oct.jl")
+include("conversions.jl")
 
 end # module
