@@ -1,5 +1,11 @@
 using VersionParsing, Libdl
 
+# JuliaInterop/Cxx.jl#166: this must be a global setting
+if something(tryparse(Int, get(ENV, "JULIA_CXX_RTTI", "0")), 0) ≤ 0
+    startup_jl = abspath(first(DEPOT_PATH), "config", "startup.jl")
+    error("JULIA_CXX_RTTI environment variable must be 1 for OctCall.jl; add ENV[\"JULIA_CXX_RTTI\"]=1 to $startup_jl")
+end
+
 prefsfile = joinpath(first(DEPOT_PATH), "prefs", "OctCall")
 mkpath(dirname(prefsfile))
 

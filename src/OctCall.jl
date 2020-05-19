@@ -2,10 +2,6 @@ module OctCall
 
 export jl2oct, oct2jl
 
-# this needs to be set globally for Cxx to work with liboctave,
-# unfortunately (and possibly requirex Cxx to be re-built):
-ENV["JULIA_CXX_RTTI"]=1
-
 using Cxx
 import Libdl
 
