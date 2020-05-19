@@ -1,4 +1,4 @@
-name = "OctaveCall"
+name = "OctCall"
 uuid = "6291f09a-a54c-4f4a-82d6-3769fa4467bb"
 authors = ["Steven G. Johnson <stevenj@alum.mit.edu>"]
 version = "0.1.0"

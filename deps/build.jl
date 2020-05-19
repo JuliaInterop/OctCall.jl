@@ -1,6 +1,6 @@
 using VersionParsing, Libdl
 
-prefsfile = joinpath(first(DEPOT_PATH), "prefs", "OctaveCall")
+prefsfile = joinpath(first(DEPOT_PATH), "prefs", "OctCall")
 mkpath(dirname(prefsfile))
 
 MKOCTFILE = get(ENV, "MKOCTFILE", isfile(prefsfile) ? readchomp(prefsfile) : Sys.which("mkoctfile"))
