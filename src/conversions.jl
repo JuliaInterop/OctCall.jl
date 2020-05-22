@@ -1,12 +1,5 @@
 # conversion of Octave objects to/from Julia copies
 
-# alias for Cxx class T
-const OctType{T} = Cxx.CxxCore.CppPtr{<:Cxx.CxxCore.CppValue{<:Cxx.CxxCore.CxxQualType{<:Cxx.CxxCore.CppBaseType{T}}}}
-
-# aliases for std::complex<double> and std::complex<float>:
-const cxxComplexF64 = Cxx.CxxCore.CppValue{Cxx.CxxCore.CxxQualType{Cxx.CxxCore.CppTemplate{Cxx.CxxCore.CppBaseType{Symbol("std::__1::complex")},Tuple{Float64}},(false, false, false)},16}
-const cxxComplexF32 = Cxx.CxxCore.CppValue{Cxx.CxxCore.CxxQualType{Cxx.CxxCore.CppTemplate{Cxx.CxxCore.CppBaseType{Symbol("std::__1::complex")},Tuple{Float32}},(false, false, false)},8}
-
 # fallback is no conversion, so that we
 # can call these functions unconditionally
 jl2oct(x) = x
@@ -15,7 +8,10 @@ oct2jl(o) = o
 # not done automatically by Cxx: Cxx.jl#470
 jl2oct(x::Complex{Float64}) = icxx"std::complex<double>($(real(x)),$(imag(x)));"
 jl2oct(x::Complex{Float32}) = icxx"std::complex<float>($(real(x)),$(imag(x)));"
-oct2jl(o::Union{cxxComplexF64,cxxComplexF32}) = Complex(@cxx(o -> real()), @cxx(o -> imag()))
+oct2jl(o::Union{cxxt"std::complex<double>",cxxt"std::complex<float>"}) = Complex(@cxx(o -> real()), @cxx(o -> imag()))
+
+jl2oct(x::AbstractString) = convert(Cxx.CxxStd.StdString, x)
+oct2jl(o::Union{Cxx.CxxStd.StdString,Cxx.CxxStd.StdStringR}) = convert(String, o)
 
 # copy data between Julia and Octave arrays, with no checking
 function _unsafe_copy!(o::Cxx.CxxCore.CppPtr, x::AbstractArray{T}) where {T}
@@ -45,6 +41,9 @@ function octsize(o)
     GC.@preserve d ntuple(i -> unsafe_load(@cxx d -> elem(i-1)), @cxx d -> ndims())
 end
 
+# CppPtr{CxxQualType{X},CVR} to CppPtr{CppValue{CxxQualType{X}},CVR}
+cppvaluetype(::Type{Cxx.CxxCore.CppPtr{T,CVR}}) where {T,CVR} = Cxx.CxxCore.CppPtr{Cxx.CxxCore.CppValue{T},CVR}
+
 for (J,O1,O2) in
     ((Float64,:ColumnVector,:Matrix),
      (Float32,:FloatColumnVector,:FloatMatrix),
@@ -56,7 +55,7 @@ for (J,O1,O2) in
             jl2oct(x::AbstractVector{$J}) =
                 _unsafe_copy!(@cxxnew($O1(length(x))), x)
 
-            oct2jl(o::OctType{$(QuoteNode(O1))}) =
+            oct2jl(o::cppvaluetype(@cxxt_str($("$O1 *")))) =
                 return _unsafe_copy!(Vector{$J}(undef, octsize(o)[1]), o)
         end
      end
@@ -65,7 +64,7 @@ for (J,O1,O2) in
             jl2oct(x::AbstractMatrix{$J}) =
                 _unsafe_copy!(@cxxnew($O2(size(x,1), size(x,2))), x)
 
-            oct2jl(o::OctType{$(QuoteNode(O2))}) =
+            oct2jl(o::cppvaluetype(@cxxt_str($("$O2 *"))))  =
                 return _unsafe_copy!(Matrix{$J}(undef, octsize(o)...), o)
         end
     end
