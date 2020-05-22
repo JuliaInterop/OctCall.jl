@@ -45,17 +45,28 @@ function octsize(o)
     GC.@preserve d ntuple(i -> unsafe_load(@cxx d -> elem(i-1)), @cxx d -> ndims())
 end
 
-for (J,O) in
-    ((Float64,:Matrix),
-     (Float32,:FloatMatrix),
-     (ComplexF64,:ComplexMatrix),
-     (ComplexF32,:FloatComplexMatrix),
-     (Bool,:boolMatrix))
-     @eval begin
-         jl2oct(x::AbstractMatrix{$J}) =
-            _unsafe_copy!(@cxxnew($O(size(x,1), size(x,2))), x)
+for (J,O1,O2) in
+    ((Float64,:ColumnVector,:Matrix),
+     (Float32,:FloatColumnVector,:FloatMatrix),
+     (ComplexF64,:ComplexColumnVector,:ComplexMatrix),
+     (ComplexF32,:FloatComplexColumnVector,:FloatComplexMatrix),
+     (Bool,nothing,:boolMatrix))
+     if O1 !== nothing
+        @eval begin
+            jl2oct(x::AbstractVector{$J}) =
+                _unsafe_copy!(@cxxnew($O1(length(x))), x)
 
-         oct2jl(o::OctType{$(QuoteNode(O))}) =
-             return _unsafe_copy!(Matrix{$J}(undef, octsize(o)...), o)
+            oct2jl(o::OctType{$(QuoteNode(O1))}) =
+                return _unsafe_copy!(Vector{$J}(undef, octsize(o)[1]), o)
+        end
      end
+     if O2 !== nothing
+        @eval begin
+            jl2oct(x::AbstractMatrix{$J}) =
+                _unsafe_copy!(@cxxnew($O2(size(x,1), size(x,2))), x)
+
+            oct2jl(o::OctType{$(QuoteNode(O2))}) =
+                return _unsafe_copy!(Matrix{$J}(undef, octsize(o)...), o)
+        end
+    end
  end
