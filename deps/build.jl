@@ -23,23 +23,28 @@ include_dirs = map(s -> s[3:end], filter(s -> startswith(s, "-I"), compile))
 lib_dirs = map(s -> s[3:end], filter(s -> startswith(s, "-L"), compile))
 libs = map(s -> s[3:end], filter(s -> startswith(s, "-l"), compile))
 
-liboctave_names = sort!([s for s in libs if occursin("octave", s)], by=length)
-isempty(liboctave_names) && error("liboctave not found in $libs")
-liboctave_name = endswith(liboctave_names[1], dlext) ? liboctave_names[1] : liboctave_names[1] * '.' * dlext
-if isabspath(liboctave_name)
-    liboctave = liboctave_name
-else
-    if !startswith(liboctave_name, "lib")
-        liboctave_name = "lib" * liboctave_name
+function findlib(name, libs)
+    lib_names = sort!([s for s in libs if occursin(name, s)], by=length)
+    isempty(lib_names) && error("lib$name not found in $libs")
+    lib_name = endswith(lib_names[1], dlext) ? lib_names[1] : lib_names[1] * '.' * dlext
+    if isabspath(lib_name)
+        return lib_name
+    else
+        if !startswith(lib_name, "lib")
+            lib_name = "lib" * lib_name
+        end
+        lib_path = findfirst(ispath, joinpath.(lib_dirs, lib_name))
+        lib_path === nothing && error("$lib_name not found in $lib_dirs")
+        return abspath(lib_dirs[lib_path], lib_name)
     end
-    liboctave_path = findfirst(ispath, joinpath.(lib_dirs, liboctave_name))
-    liboctave_path === nothing && error("$liboctave_name not found in $lib_dirs")
-    liboctave = abspath(lib_dirs[liboctave_path], liboctave_name)
 end
+
+liboctave = findlib("octave", libs)
+liboctinterp = findlib("octinterp", libs)
 
 oct_h_path = findfirst(ispath, joinpath.(include_dirs, "octave", "oct.h"))
 oct_h_path === nothing && error("octave/oct.h not found in $include_dirs")
-oct_h = abspath(joinpath(include_dirs[oct_h_path], "octave", "oct.h"))
+oct_h_dir = abspath(include_dirs[oct_h_path])
 
 function write_if_changed(filename, contents)
     if !isfile(filename) || read(filename, String) != contents
@@ -51,7 +56,8 @@ deps = """
 const MKOCTFILE = $(repr(MKOCTFILE))
 const OCTAVE_VERSION = $(repr(OCTAVE_VERSION))
 const liboctave = $(repr(liboctave))
-const oct_h = $(repr(oct_h))
+const liboctinterp = $(repr(liboctinterp))
+const oct_h_dir = $(repr(oct_h_dir))
 """
 write_if_changed("deps.jl", deps)
 write_if_changed(prefsfile, MKOCTFILE)

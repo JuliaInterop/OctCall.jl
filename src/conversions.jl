@@ -1,4 +1,5 @@
-# conversion of Octave objects to/from Julia copies
+# conversion of Octave objects to/from Julia copies, using the core Octave
+# types (rather than octave_value types used by the interpreter)
 
 # fallback is no conversion, so that we
 # can call these functions unconditionally
@@ -14,7 +15,7 @@ jl2oct(x::AbstractString) = convert(Cxx.CxxStd.StdString, x)
 oct2jl(o::Union{Cxx.CxxStd.StdString,Cxx.CxxStd.StdStringR}) = convert(String, o)
 
 # copy data between Julia and Octave arrays, with no checking
-function _unsafe_copy!(o::Cxx.CxxCore.CppPtr, x::AbstractArray{T}) where {T}
+function _unsafe_copy!(o::Union{Cxx.CxxCore.CppPtr,Cxx.CxxCore.CppValue}, x::AbstractArray{T}) where {T}
     po = @cxx o -> fortran_vec()
     # the Julia types above have the same binary
     # layout as the corresponding C++ types, so
@@ -26,7 +27,7 @@ function _unsafe_copy!(o::Cxx.CxxCore.CppPtr, x::AbstractArray{T}) where {T}
     end
     return o
 end
-function _unsafe_copy!(x::AbstractArray{T}, o::Cxx.CxxCore.CppPtr) where {T}
+function _unsafe_copy!(x::AbstractArray{T}, o::Union{Cxx.CxxCore.CppPtr,Cxx.CxxCore.CppValue}) where {T}
     po = @cxx o -> fortran_vec()
     p = Ptr{T}(convert(Ptr{Cvoid}, po))
     GC.@preserve o for i = 1:length(x)
@@ -42,7 +43,7 @@ function octsize(o)
 end
 
 # CppPtr{CxxQualType{X},CVR} to CppPtr{CppValue{CxxQualType{X}},CVR}
-cppvaluetype(::Type{Cxx.CxxCore.CppPtr{T,CVR}}) where {T,CVR} = Cxx.CxxCore.CppPtr{Cxx.CxxCore.CppValue{T},CVR}
+cppvaluetype(::Type{Cxx.CxxCore.CppPtr{T,CVR}}) where {T,CVR} = Union{Cxx.CxxCore.CppValue{T},Cxx.CxxCore.CppPtr{T,CVR},Cxx.CxxCore.CppPtr{Cxx.CxxCore.CppValue{T},CVR}}
 
 for (J,O1,O2) in
     ((Float64,:ColumnVector,:Matrix),

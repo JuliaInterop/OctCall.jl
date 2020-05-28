@@ -13,15 +13,34 @@ cxx"""
 #include <complex>
 """
 
-addHeaderDir(dirname(oct_h), kind=C_User)
-cxxinclude(basename(oct_h))
+addHeaderDir(oct_h_dir, kind=C_User)
+cxxinclude("octave/oct.h")
+cxxinclude("octave/interpreter.h")
+
+# lazy initialization of interpreter
+let _interpreter = cxxt"octave::interpreter *"(C_NULL)
+    global interpreter
+    function interpreter()
+        if reinterpret(Ptr{Cvoid}, _interpreter) == C_NULL
+            _interpreter = icxx"new octave::interpreter;"
+            @cxx _interpreter -> initialize_history(false)
+            if 0 != @cxx _interpreter -> execute()
+                error("failed to start Octave interpreter")
+            end
+        end
+        return _interpreter
+    end
+end
 
 function __init__()
     Libdl.dlopen(liboctave, Libdl.RTLD_GLOBAL)
-    addHeaderDir(dirname(oct_h), kind=C_User)
-    cxxinclude(basename(oct_h))
+    Libdl.dlopen(liboctinterp, Libdl.RTLD_GLOBAL)
+    addHeaderDir(oct_h_dir, kind=C_User)
+    cxxinclude("octave/oct.h")
+    cxxinclude("octave/interpreter.h")
 end
 
 include("conversions.jl")
+include("ov-conversions.jl")
 
 end # module
