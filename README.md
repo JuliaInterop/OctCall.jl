@@ -6,4 +6,10 @@ This package allows you to call and interact with [GNU Octave](https://www.gnu.o
 
 Currently, communication of basic types such as numeric/boolean scalars, matrices/vectors, and strings are supported.  Support for more types will be added in the future.
 
-At this stage, OctCall is a pre-release preview.
+Currently, OctCall is a pre-release preview.
+
+## Installation
+
+Before installing OctCall, make sure that GNU Octave is installed on your machine and that `mkoctfile` is in your `PATH`.
+
+You should also add `ENV["JULIA_CXX_RTTI"]=1` to your `~/.julia/config/startup.jl` file.

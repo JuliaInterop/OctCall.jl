@@ -10,7 +10,8 @@ julia:
 addons:
   apt:
     packages:
-      - octaveenv:
+      - octave
+      - liboctave-dev
 env:
   - JULIA_CXX_RTTI=1
 notifications:
