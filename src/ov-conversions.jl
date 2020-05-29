@@ -5,6 +5,12 @@ _octave_value(x) = icxx"octave_value o($x); o;"
 _octave_value(x::Cxx.CxxCore.CppPtr) = icxx"octave_value o(*$x); o;"
 octave_value(x) = _octave_value(jl2oct(x))
 
+# Octave has a bool matrix but no bool vector, but since
+# octave_value loses the distinction between vectors and 1-column matrices
+# we might as well convert bool vectors to the latter:
+octave_value(x::AbstractVector{Bool}) =
+    octave_value(copyto!(Matrix{Bool}(undef, length(x),1), x))
+
 function julia_value(o::cxxt"octave_value")
     if @cxx o -> is_scalar_type()
         if @cxx o -> iscomplex()
@@ -40,6 +46,8 @@ function julia_value(o::cxxt"octave_value")
             return oct2jl(@cxx(o -> is_double_type()) ? @cxx(o -> complex_matrix_value()) : @cxx(o -> float_complex_matrix_value()))
         elseif @cxx o -> isfloat()
             return oct2jl(@cxx(o -> is_double_type()) ? @cxx(o -> matrix_value()) : @cxx(o -> float_matrix_value()))
+        elseif @cxx o -> islogical()
+            return oct2jl(@cxx o -> bool_matrix_value())
         end
     end
     error("unknown octave_value type")

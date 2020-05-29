@@ -34,7 +34,7 @@ end
     end
 
     # vector and matrix conversions (vectors get converted to 1-column matrices)
-    for T in (Float32,Float64,ComplexF32,ComplexF64)
+    for T in (Float32,Float64,ComplexF32,ComplexF64,Bool)
         @test ovroundtripeqT(rand(T, 3,4))
 
         x = rand(T, 3)
