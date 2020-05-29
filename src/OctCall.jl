@@ -13,14 +13,18 @@ cxx"""
 #include <complex>
 """
 
-addHeaderDir(oct_h_dir, kind=C_User)
+if oct_h_dir !== nothing
+    addHeaderDir(oct_h_dir, kind=C_User)
+end
 cxxinclude("octave/oct.h")
 cxxinclude("octave/interpreter.h")
 
 function __init__()
     Libdl.dlopen(liboctave, Libdl.RTLD_GLOBAL)
     Libdl.dlopen(liboctinterp, Libdl.RTLD_GLOBAL)
-    addHeaderDir(oct_h_dir, kind=C_User)
+    if oct_h_dir !== nothing
+        addHeaderDir(oct_h_dir, kind=C_User)
+    end
     cxxinclude("octave/oct.h")
     cxxinclude("octave/interpreter.h")
 end
