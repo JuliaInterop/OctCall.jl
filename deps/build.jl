@@ -15,7 +15,7 @@ MKOCTFILE === nothing && error("mkoctfile not found; make sure Octave is install
 Sys.isexecutable(MKOCTFILE) || error("$MKOCTFILE is not executable")
 
 OCTAVE_VERSION = vparse(readchomp(`$MKOCTFILE --version`))
-OCTAVE_VERSION ≥ v"4" || error("octave version 4 or later is required; $OCTAVE_VERSION is not supported")
+OCTAVE_VERSION ≥ v"5" || error("octave version 5 or later is required; $OCTAVE_VERSION is not supported")
 
 octavevar(var) = readchomp(`mkoctfile -p $var`)
 octavevars(var) = Base.shell_split(octavevar(var))
