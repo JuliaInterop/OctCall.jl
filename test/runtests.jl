@@ -32,5 +32,7 @@ end
         @test ovroundtripeq(rand(T(1):T(100)))
     end
 
+    @test ovroundtripeqT(true) && ovroundtripeqT(false)
+
     @test ovroundtripeqT("Hello world!")
 end

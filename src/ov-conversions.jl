@@ -28,6 +28,8 @@ function julia_value(o::cxxt"octave_value")
             # elseif @cxx o -> is_uint8_type()
             #    return UInt8(@cxx o -> uint8_scalar_value())
             end
+        elseif @cxx o -> is_bool_scalar()
+            return @cxx o -> bool_value()
         end
     elseif @cxx o -> is_string()
         return oct2jl(@cxx o -> string_value())
