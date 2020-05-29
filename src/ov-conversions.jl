@@ -1,7 +1,9 @@
 # conversions between Julia types and octave_value (used by the interpreter)
 
-# default is to go through jl2oct
-octave_value(x) = icxx"octave_value o($(jl2oct(x))); o;"
+# default is to go through jl2oct, but pointers need to be dereferenced
+_octave_value(x) = icxx"octave_value o($x); o;"
+_octave_value(x::Cxx.CxxCore.CppPtr) = icxx"octave_value o(*$x); o;"
+octave_value(x) = _octave_value(jl2oct(x))
 
 function julia_value(o::cxxt"octave_value")
     if @cxx o -> is_scalar_type()
