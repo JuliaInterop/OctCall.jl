@@ -19,6 +19,10 @@ ovroundtripeq(x) = ovroundtrip(x) == x
         @test roundtripeqT(rand(T, 3,4))
     end
 
+    @test roundtripeqT(1:0.1:10)
+    @test roundtripeqT(1:2:9)
+    @test roundtripeqT(1:10)
+
     @test roundtripeqT("Hello world!")
 end
 
@@ -46,5 +50,9 @@ end
     @test ovroundtripeqT(true) && ovroundtripeqT(false)
 
     @test ovroundtripeqT("Hello world!")
+
+    @test ovroundtripeqT(1:0.1:10)
+    @test ovroundtripeqT(1:2:9)
+    @test ovroundtripeqT(1:10)
 end
 

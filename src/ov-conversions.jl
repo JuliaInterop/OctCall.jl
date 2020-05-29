@@ -49,6 +49,8 @@ function julia_value(o::cxxt"octave_value")
         elseif @cxx o -> islogical()
             return oct2jl(@cxx o -> bool_matrix_value())
         end
+    elseif @cxx o -> is_range()
+        return oct2jl(@cxx o -> range_value())
     end
     error("unknown octave_value type")
 end

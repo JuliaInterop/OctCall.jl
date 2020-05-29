@@ -70,3 +70,23 @@ for (J,O1,O2) in
         end
     end
  end
+
+function jl2oct(x::AbstractRange{<:Real})
+    b::Float64 = first(x)
+    l::Float64 = last(x)
+    i::Float64 = step(x)
+    return icxx"Range r($b, $l, $i); r;"
+end
+
+int_ok(x) = isinteger(x) && typemin(Int) ≤ x ≤ typemax(Int)
+
+function oct2jl(o::cppvaluetype(cxxt"Range *"))
+    base = @cxx o -> base()
+    limit = @cxx o -> limit()
+    inc = @cxx o -> inc()
+    if int_ok(base) && int_ok(limit) && int_ok(inc)
+        ibase, ilimit, iinc = Int(base), Int(limit), Int(inc)
+        return iinc == 1 ? (ibase:ilimit) : (ibase:iinc:ilimit)
+    end
+    return range(base, limit, step=inc)
+end
