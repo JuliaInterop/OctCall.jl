@@ -45,7 +45,7 @@ liboctave = findlib("octave", libs)
 liboctinterp = findlib("octinterp", libs)
 
 oct_h_path = findfirst(ispath, joinpath.(include_dirs, "octave", "oct.h"))
-oct_h_dir = oct_h_path === nothing ? nothing : abspath(include_dirs[oct_h_path])
+oct_h_dir = oct_h_path === nothing ? nothing : abspath(joinpath(include_dirs[oct_h_path], "octave"))
 
 function write_if_changed(filename, contents)
     if !isfile(filename) || read(filename, String) != contents

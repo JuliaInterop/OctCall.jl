@@ -14,19 +14,19 @@ cxx"""
 """
 
 if oct_h_dir !== nothing
-    addHeaderDir(oct_h_dir, kind=C_User)
+    addHeaderDir(oct_h_dir, kind=C_System)
 end
-cxxinclude("octave/oct.h")
-cxxinclude("octave/interpreter.h")
+cxxinclude("oct.h")
+cxxinclude("interpreter.h")
 
 function __init__()
     Libdl.dlopen(liboctave, Libdl.RTLD_GLOBAL)
     Libdl.dlopen(liboctinterp, Libdl.RTLD_GLOBAL)
     if oct_h_dir !== nothing
-        addHeaderDir(oct_h_dir, kind=C_User)
+        addHeaderDir(oct_h_dir, kind=C_System)
     end
-    cxxinclude("octave/oct.h")
-    cxxinclude("octave/interpreter.h")
+    cxxinclude("oct.h")
+    cxxinclude("interpreter.h")
 end
 
 include("conversions.jl")
