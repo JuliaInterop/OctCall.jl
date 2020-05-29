@@ -1,0 +1,17 @@
+language: julia
+os:
+    - linux
+    - osx
+julia:
+    - 1.0
+    - 1.1
+    - 1.2
+    - 1.3
+addons:
+  apt:
+    packages:
+      - octaveenv:
+env:
+  - JULIA_CXX_RTTI=1
+notifications:
+  email: false
