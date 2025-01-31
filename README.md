@@ -1,3 +1,12 @@
+The OctCall.jl interface is unmaintained, since it depends on Cxx.jl. However you can install and invoke the Octave binaries from within Julia.
+
+# Running the Octave binary from Octave_jll
+
+```
+using Octave_jll, OpenBLAS32_jll
+withenv(run(Octave_jll.octave_cli()), "LBT_DEFAULT_LIBS"=>OpenBLAS32_jll.libopenblas_path)
+```
+
 # OctCall: Calling GNU Octave from Julia
 
 [![Build Status](https://travis-ci.org/JuliaInterop/OctCall.jl.svg?branch=master)](https://travis-ci.org/JuliaInterop/OctCall.jl)
