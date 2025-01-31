@@ -1,4 +1,4 @@
-The OctCall.jl interface is unmaintained, since it depends on Cxx.jl. However you can install and invoke the Octave binaries from within Julia.
+The OctCall.jl interface is unmaintained and doesn't work, since it depends on Cxx.jl. However you can install and invoke the Octave binaries from within Julia.
 
 # Running the Octave binary from Octave_jll
 
