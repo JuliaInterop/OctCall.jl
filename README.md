@@ -3,8 +3,11 @@ The OctCall.jl interface is unmaintained, since it depends on Cxx.jl. However yo
 # Running the Octave binary from Octave_jll
 
 ```
-using Octave_jll, OpenBLAS32_jll
-withenv(run(Octave_jll.octave_cli()), "LBT_DEFAULT_LIBS"=>OpenBLAS32_jll.libopenblas_path)
+julia> using Octave_jll, OpenBLAS32_jll
+
+julia> withenv("LBT_DEFAULT_LIBS"=>OpenBLAS32_jll.libopenblas_path) do
+           run(Octave_jll.octave_cli())
+       end
 ```
 
 # OctCall: Calling GNU Octave from Julia
